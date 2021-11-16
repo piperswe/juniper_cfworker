@@ -1,0 +1,8 @@
+{
+    "[nix]": {
+        "editor.tabSize": 2,
+    },
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix"
+}

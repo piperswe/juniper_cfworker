@@ -1,0 +1,17 @@
+[package]
+name = "hello_world"
+version = "0.0.0"
+authors = ["Piper McCorkle <contact@piperswe.me>"]
+edition = "2021"
+publish = false
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+worker = "0.0.7"
+juniper = "0.15"
+juniper_cfworker = { path = "../../juniper_cfworker" }

@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = github:nixos/nixpkgs;
+    rust-overlay.url = github:oxalica/rust-overlay;
     flake-utils.url = github:numtide/flake-utils;
     flake-compat = {
       url = github:edolstra/flake-compat;
@@ -8,23 +9,25 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = nixpkgs.legacyPackages.${system};
-      rs = pkgs.rust.packages.stable;
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ rust-overlay.overlay ];
+      };
     in
     {
       devShell = pkgs.mkShell {
         nativeBuildInputs = [
-          rs.cargo
-          rs.rustc
-          rs.rustfmt
-        ];
-        buildInputs = [
-          pkgs.libiconv
-        ];
-
-        RUST_SRC_PATH = "${rs.rustPlatform.rustLibSrc}";
+          (pkgs.rust-bin.stable.latest.default.override {
+            extensions = [ "rust-src" ];
+            targets = [ "wasm32-unknown-unknown" ];
+          })
+          pkgs.wrangler
+          pkgs.curl.dev
+          pkgs.shellcheck
+          pkgs.binaryen
+        ] ++ (pkgs.lib.optional pkgs.stdenv.isDarwin pkgs.darwin.apple_sdk.frameworks.Security);
       };
     });
 }
